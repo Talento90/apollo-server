@@ -1,5 +1,5 @@
 ---
-title: Unions and interfaces
+title: Unions and Interfaces
 description: Abstract schema types
 ---
 
@@ -70,7 +70,7 @@ query GetSearchResults {
 
 > [What is the `__typename` field?](./schema/#the-__typename-field)
 
-This query uses [inline fragments](https://graphql.org/learn/queries/#inline-fragments) to fetch a `Result`'s `title` (if it's a `Book`) or its `name` (if it's an `Author`).
+This query uses [inline fragments](https://graphql.org/learn/queries/#inline-fragments) to fetch a `Result`'s `title` (if it's a `Book`) or its `name` (if it's an `Author`). The web client can be informed about this polymorphic relationship by [passing the possibleTypes option](https://www.apollographql.com/docs/react/data/fragments/#using-fragments-with-unions-and-interfaces).
 
 Here's a valid result for the above query:
 
@@ -92,9 +92,6 @@ Here's a valid result for the above query:
 ```
 
 
-For more information, see [Using fragments with unions and interfaces](https://www.apollographql.com/docs/react/data/fragments/#using-fragments-with-unions-and-interfaces).
-
-
 ### Resolving a union
 
 > Before reading this section, [learn about resolvers](../data/resolvers/).
@@ -103,15 +100,15 @@ To fully resolve a union, Apollo Server needs to specify _which_ of the union's 
 
 The `__resolveType` function is responsible for determining an object's corresponding GraphQL type and returning the name of that type as a string. It can use any logic to do so, such as:
 
-* Checking for the presence or absence of fields that are unique to a particular type in the union
-* Using `instanceof`, if the _JavaScript_ object's type is related to its _GraphQL_ object type
+- Checking for the presence or absence of fields that are unique to a particular type in the union
+- Using `instanceof`, if the _JavaScript_ object's type is related to its _GraphQL_ object type
 
 Here's a basic `__resolveType` function for the `SearchResult` union defined above:
 
-```js {3-13}
+```ts {3-13}
 const resolvers = {
   SearchResult: {
-    __resolveType(obj, context, info){
+    __resolveType(obj, contextValue, info){
       // Only Author has a name field
       if(obj.name){
         return 'Author';
@@ -133,9 +130,9 @@ const server = new ApolloServer({
   resolvers,
 });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`)
-});
+const { url } = await startStandaloneServer(server);
+
+console.log(`🚀  Server ready at: ${url}`);
 ```
 
 > If a `__resolveType` function returns any value that _isn't_ the name of a valid type, the associated operation produces a GraphQL error.
@@ -165,7 +162,7 @@ A field can have an interface (or a list of that interface) as its return type. 
 
 ```graphql
 type Query {
-  books: [Book!] # Can include Textbook objects
+  books: [Book!]! # Can include Textbook objects
 }
 ```
 
@@ -222,7 +219,8 @@ query GetBooks {
     __typename
     title
     ... on Textbook {
-      courses { # Only present in Textbook
+      courses {
+        # Only present in Textbook
         name
       }
     }
@@ -235,7 +233,7 @@ query GetBooks {
 
 > [What is the `__typename` field?](./schema/#the-__typename-field)
 
-This query uses [inline fragments](https://graphql.org/learn/queries/#inline-fragments) to fetch a `Book`'s `courses` (if it's a `Textbook`) or its `colors` (if it's a `ColoringBook`).
+This query uses [inline fragments](https://graphql.org/learn/queries/#inline-fragments) to fetch a `Book`'s `courses` (if it's a `Textbook`) or its `colors` (if it's a `ColoringBook`). The web client can be informed about this polymorphic relationship by [passing the possibleTypes option](https://www.apollographql.com/docs/react/data/fragments/#using-fragments-with-unions-and-interfaces).
 
 Here's a valid result for the above query:
 
@@ -255,17 +253,12 @@ Here's a valid result for the above query:
       {
         "__typename": "ColoringBook",
         "title": "Oops All Water",
-        "colors": [
-          "Blue"
-        ]
+        "colors": ["Blue"]
       }
     ]
   }
 }
 ```
-
-For more information, see [Using fragments with unions and interfaces](https://www.apollographql.com/docs/react/data/fragments/#using-fragments-with-unions-and-interfaces).
-
 
 ### Resolving an interface
 
@@ -275,10 +268,10 @@ For more information, see [Using fragments with unions and interfaces](https://w
 
 Here's an example `__resolveType` function for the `Book` interface defined above:
 
-```js {3-13}
+```ts {3-13}
 const resolvers = {
   Book: {
-    __resolveType(book, context, info){
+    __resolveType(book, contextValue, info){
       // Only Textbook has a courses field
       if(book.courses){
         return 'Textbook';

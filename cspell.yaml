@@ -19,6 +19,7 @@ dictionaries:
 useGitignore: true
 ignorePaths:
   - '**/generated/**'
+  - 'packages/usage-reporting-protobuf/src/reports.proto'
   - '**/*.sketch'
   - '**/*.svg'
   - cspell.yaml
@@ -29,7 +30,7 @@ ignoreRegExpList:
 
 overrides:
   # Ignore anything in a changelog file that looks like a GitHub username.
-  - filename: '**/CHANGELOG.md'
+  - filename: '**/CHANGELOG*.md'
     ignoreRegExpList:
       - "@[-\\w]+"
   # Ignore the targets of links in Markdown/MDX files.
